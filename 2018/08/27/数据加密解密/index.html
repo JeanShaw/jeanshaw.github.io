@@ -1,0 +1,516 @@
+
+<!DOCTYPE html>
+<html lang="">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="JeanShaw&#39;s blog">
+    <title>数据加密解密 - JeanShaw&#39;s blog</title>
+    <meta name="author" content="JeanShaw">
+    
+    
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"JeanShaw","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"],"image":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82"},"articleBody":"数据加密解密\n在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。\n核心代码内容代码块语法遵循标准markdown代码，例如：123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160161162163164165166167168169170171172173174175176177178179using UnityEngine;using System.Collections;using System.Text;using System;public class EncryptAndDecipher&#123;    /** 加密的方式     * encrypt     * @param userId     * @param msg 明文     * @return     */    public static string encrypt(string key,string msg)    &#123;        if(string.IsNullOrEmpty(key) || string.IsNullOrEmpty(msg))        &#123;            return msg;        &#125;        try        &#123;            byte[] keyBytes=Encoding.UTF8.GetBytes(key);            byte[] msgBytes=Encoding.UTF8.GetBytes(msg);            byte[] ciperBytes=new byte[msgBytes.Length];            for(int i=0;i&lt;msgBytes.Length;i++)            &#123;                byte temp=keyBytes[i%keyBytes.Length];                if(i%2==0)                &#123;                    ciperBytes[i]=(byte)(msgBytes[i]+temp);                &#125;                else                &#123;                    ciperBytes[i]=(byte)(msgBytes[i]-temp);                &#125;            &#125;            return byte2hex(ciperBytes);        &#125;        catch (Exception e)        &#123;            Debug.LogError(e);        &#125;        return null;    &#125;    /**     * 解密的方式     * @param userId     * @param decipherMsg 密文     * @return     */    public static string decipher(string key,string decipherMsg)    &#123;        if(key==null || \"\".Equals(key) || decipherMsg==null)        &#123;            return decipherMsg;        &#125;        try        &#123;            byte[] keyBytes=Encoding.UTF8.GetBytes(key);            byte[] decipherBytes=hex2byte(decipherMsg);            byte[] msgBytes=new byte[decipherBytes.Length];            for(int i=0;i&lt;decipherBytes.Length;i++)            &#123;                byte temp=keyBytes[i%keyBytes.Length];                if(i%2==0)                &#123;                    msgBytes[i]=(byte)(decipherBytes[i]-temp);                &#125;                else                &#123;                    msgBytes[i]=(byte)(decipherBytes[i]+temp);                &#125;            &#125;            return Encoding.UTF8.GetString(msgBytes);        &#125;        catch (Exception e)        &#123;            Debug.Log(e);        &#125;        return null;    &#125;    /**     * 将二进制字节数组转化为十六进制字符串     * @param b 二进制字节数组     * @return String     */    private static string byte2hex(byte[] b)     &#123;        string result=\"\";        for (int i=0;i&lt;b.Length;i++)         &#123;            string temp=(b[i]&amp;0xff).ToString(\"X\");            if(temp.Length==1)             &#123;                temp=\"0\"+temp;            &#125;             result=result+temp;        &#125;        return result;    &#125;    /**     * 十六进制字符串转化为二进制字节数组     * @param hex     * @return     */    private static byte[] hex2byte(string hex)    &#123;        byte[] result=new byte[hex.Length/2];        for (int i=0;i&lt;result.Length;i++)         &#123;            string temp=hex[i*2]+\"\"+hex[i*2+1];            result[i]=(byte)StringUtil.getIntFromHexStr(temp);        &#125;        return result;    &#125;    /**     * encrypt方式2     * @param userId     * @param msg 明文     * @return     */    public static string encrypt2(string key,string msg)    &#123;        if(key==null || \"\".Equals(key) || msg==null)        &#123;            return msg;        &#125;        if(key==null)        &#123;            key=\"\";        &#125;        string ciper=\"\";        for(int i=0;i&lt;msg.Length;i++)        &#123;            char temp=key[i%key.Length];            if(i%2==0)            &#123;                ciper+=(char)(msg[i]+temp);            &#125;            else            &#123;                ciper+=(char)(msg[i]-temp);            &#125;        &#125;        return ciper;    &#125;    /**     * 解密方式2     * @param userId     * @param decipherMsg 密文     * @return     */    public static string decipher2(string key,string ciper)    &#123;        if(key==null || \"\".Equals(key) || ciper==null)        &#123;            return ciper;        &#125;        string msg=\"\";        for(int i=0;i&lt;ciper.Length;i++)        &#123;            char temp=key[i%key.Length];            if(i%2==0)            &#123;                msg+=(char)(ciper[i]-temp);            &#125;            else            &#123;                msg+=(char)(ciper[i]+temp);            &#125;        &#125;        return msg;    &#125;&#125;\n从代码中可以明显看到，方式1与方式2的区别就是方式1是以标准uniocde字符方式生成，至于采取哪种方式，由具体的使用方式来决定。欢迎大家访问我的CSDN此文章链接加密解密\n","dateCreated":"2018-08-27T10:09:46+08:00","dateModified":"2018-08-27T12:18:36+08:00","datePublished":"2018-08-27T10:09:46+08:00","description":"","headline":"数据加密解密","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://yoursite.com/2018/08/27/数据加密解密/"},"publisher":{"@type":"Organization","name":"JeanShaw","sameAs":["https://github.com/","http://stackoverflow.com/users","https://twitter.com/","https://facebook.com/","https://plus.google.com/","https://www.linkedin.com/profile/","mailto"],"image":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82","logo":{"@type":"ImageObject","url":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82"}},"url":"http://yoursite.com/2018/08/27/数据加密解密/"}</script>
+    <meta name="description" content="数据加密解密 在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。 核心代码内容代码块语法遵循标准markdown代码，例如：12345678910111213141516171819202122232425262728293031323334353637383940414243444546">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="数据加密解密">
+<meta property="og:url" content="http://yoursite.com/2018/08/27/数据加密解密/index.html">
+<meta property="og:site_name" content="JeanShaw&#39;s blog">
+<meta property="og:description" content="数据加密解密 在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。 核心代码内容代码块语法遵循标准markdown代码，例如：12345678910111213141516171819202122232425262728293031323334353637383940414243444546">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-08-27T04:18:36.685Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据加密解密">
+<meta name="twitter:description" content="数据加密解密 在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。 核心代码内容代码块语法遵循标准markdown代码，例如：12345678910111213141516171819202122232425262728293031323334353637383940414243444546">
+    
+    
+        
+    
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/all.css">
+    <link rel="stylesheet" href="/assets/css/jquery.fancybox.css">
+    <link rel="stylesheet" href="/assets/css/thumbs.css">
+    <link rel="stylesheet" href="/assets/css/tranquilpeak.css">
+    <!--STYLES END-->
+    
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">JeanShaw&#39;s blog</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Home"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Home</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Kategorien"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Kategorien</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Tags"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Tags</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archiv"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archiv</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-algolia-search"
+                             href="#search"
+                            
+                            title="Suche"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Suche</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Über"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Über</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fab fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="http://stackoverflow.com/users" target="_blank" rel="noopener" title="Stack Overflow">
+                    
+                        <i class="sidebar-button-icon fab fa-stack-overflow" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Stack Overflow</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fab fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://facebook.com/" target="_blank" rel="noopener" title="Facebook">
+                    
+                        <i class="sidebar-button-icon fab fa-facebook" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Facebook</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fab fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fab fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/mailto"
+                            title="E-Mail"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-envelope" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">E-Mail</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            数据加密解密
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2018-08-27T10:09:46+08:00">
+	
+		    27 Aug 2018
+    	
+    </time>
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <h1 id="数据加密解密"><a href="#数据加密解密" class="headerlink" title="数据加密解密"></a>数据加密解密</h1><hr>
+<p>在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。</p>
+<h3 id="核心代码内容"><a href="#核心代码内容" class="headerlink" title="核心代码内容"></a>核心代码内容</h3><p>代码块语法遵循标准markdown代码，例如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br></pre></td><td class="code"><pre><span class="line">using UnityEngine;</span><br><span class="line">using System.Collections;</span><br><span class="line">using System.Text;</span><br><span class="line">using System;</span><br><span class="line"></span><br><span class="line">public class EncryptAndDecipher&#123;</span><br><span class="line"></span><br><span class="line">    /** 加密的方式</span><br><span class="line">     * encrypt</span><br><span class="line">     * @param userId</span><br><span class="line">     * @param msg 明文</span><br><span class="line">     * @<span class="keyword">return</span></span><br><span class="line">     */</span><br><span class="line">    public static string encrypt(string key,string msg)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(string.IsNullOrEmpty(key) || string.IsNullOrEmpty(msg))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> msg;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            byte[] keyBytes=Encoding.UTF8.GetBytes(key);</span><br><span class="line">            byte[] msgBytes=Encoding.UTF8.GetBytes(msg);</span><br><span class="line">            byte[] ciperBytes=new byte[msgBytes.Length];</span><br><span class="line">            <span class="keyword">for</span>(int i=<span class="number">0</span>;i&lt;msgBytes.Length;i++)</span><br><span class="line">            &#123;</span><br><span class="line">                byte temp=keyBytes[i%keyBytes.Length];</span><br><span class="line">                <span class="keyword">if</span>(i%<span class="number">2</span>==<span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    ciperBytes[i]=(byte)(msgBytes[i]+temp);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    ciperBytes[i]=(byte)(msgBytes[i]-temp);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> byte2hex(ciperBytes);</span><br><span class="line">        &#125;</span><br><span class="line">        catch (Exception e)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.LogError(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 解密的方式</span><br><span class="line">     * @param userId</span><br><span class="line">     * @param decipherMsg 密文</span><br><span class="line">     * @<span class="keyword">return</span></span><br><span class="line">     */</span><br><span class="line">    public static string decipher(string key,string decipherMsg)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(key==null || <span class="string">""</span>.Equals(key) || decipherMsg==null)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> decipherMsg;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            byte[] keyBytes=Encoding.UTF8.GetBytes(key);</span><br><span class="line">            byte[] decipherBytes=hex2byte(decipherMsg);</span><br><span class="line">            byte[] msgBytes=new byte[decipherBytes.Length];</span><br><span class="line">            <span class="keyword">for</span>(int i=<span class="number">0</span>;i&lt;decipherBytes.Length;i++)</span><br><span class="line">            &#123;</span><br><span class="line">                byte temp=keyBytes[i%keyBytes.Length];</span><br><span class="line">                <span class="keyword">if</span>(i%<span class="number">2</span>==<span class="number">0</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    msgBytes[i]=(byte)(decipherBytes[i]-temp);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    msgBytes[i]=(byte)(decipherBytes[i]+temp);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> Encoding.UTF8.GetString(msgBytes);</span><br><span class="line">        &#125;</span><br><span class="line">        catch (Exception e)</span><br><span class="line">        &#123;</span><br><span class="line">            Debug.Log(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> null;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 将二进制字节数组转化为十六进制字符串</span><br><span class="line">     * @param b 二进制字节数组</span><br><span class="line">     * @<span class="keyword">return</span> String</span><br><span class="line">     */</span><br><span class="line">    private static string byte2hex(byte[] b) </span><br><span class="line">    &#123;</span><br><span class="line">        string result=<span class="string">""</span>;</span><br><span class="line">        <span class="keyword">for</span> (int i=<span class="number">0</span>;i&lt;b.Length;i++) </span><br><span class="line">        &#123;</span><br><span class="line">            string temp=(b[i]&amp;<span class="number">0xff</span>).ToString(<span class="string">"X"</span>);</span><br><span class="line">            <span class="keyword">if</span>(temp.Length==<span class="number">1</span>) </span><br><span class="line">            &#123;</span><br><span class="line">                temp=<span class="string">"0"</span>+temp;</span><br><span class="line">            &#125; </span><br><span class="line">            result=result+temp;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 十六进制字符串转化为二进制字节数组</span><br><span class="line">     * @param hex</span><br><span class="line">     * @<span class="keyword">return</span></span><br><span class="line">     */</span><br><span class="line">    private static byte[] hex2byte(string hex)</span><br><span class="line">    &#123;</span><br><span class="line">        byte[] result=new byte[hex.Length/<span class="number">2</span>];</span><br><span class="line">        <span class="keyword">for</span> (int i=<span class="number">0</span>;i&lt;result.Length;i++) </span><br><span class="line">        &#123;</span><br><span class="line">            string temp=hex[i*<span class="number">2</span>]+<span class="string">""</span>+hex[i*<span class="number">2</span>+<span class="number">1</span>];</span><br><span class="line">            result[i]=(byte)StringUtil.getIntFromHexStr(temp);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * encrypt方式<span class="number">2</span></span><br><span class="line">     * @param userId</span><br><span class="line">     * @param msg 明文</span><br><span class="line">     * @<span class="keyword">return</span></span><br><span class="line">     */</span><br><span class="line">    public static string encrypt2(string key,string msg)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(key==null || <span class="string">""</span>.Equals(key) || msg==null)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> msg;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(key==null)</span><br><span class="line">        &#123;</span><br><span class="line">            key=<span class="string">""</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        string ciper=<span class="string">""</span>;</span><br><span class="line">        <span class="keyword">for</span>(int i=<span class="number">0</span>;i&lt;msg.Length;i++)</span><br><span class="line">        &#123;</span><br><span class="line">            char temp=key[i%key.Length];</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">2</span>==<span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                ciper+=(char)(msg[i]+temp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                ciper+=(char)(msg[i]-temp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ciper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 解密方式<span class="number">2</span></span><br><span class="line">     * @param userId</span><br><span class="line">     * @param decipherMsg 密文</span><br><span class="line">     * @<span class="keyword">return</span></span><br><span class="line">     */</span><br><span class="line">    public static string decipher2(string key,string ciper)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(key==null || <span class="string">""</span>.Equals(key) || ciper==null)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> ciper;</span><br><span class="line">        &#125;</span><br><span class="line">        string msg=<span class="string">""</span>;</span><br><span class="line">        <span class="keyword">for</span>(int i=<span class="number">0</span>;i&lt;ciper.Length;i++)</span><br><span class="line">        &#123;</span><br><span class="line">            char temp=key[i%key.Length];</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">2</span>==<span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                msg+=(char)(ciper[i]-temp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                msg+=(char)(ciper[i]+temp);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> msg;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从代码中可以明显看到，方式1与方式2的区别就是方式1是以标准uniocde字符方式生成，至于采取哪种方式，由具体的使用方式来决定。<br>欢迎大家访问我的CSDN此文章链接<a href="https://blog.csdn.net/JeanShaw/article/details/81909064" target="_blank" rel="noopener">加密解密</a></p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/08/27/hello-world/" data-tooltip="JeanShaw的博客介绍" aria-label="FRÜHER: JeanShaw的博客介绍">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">FRÜHER</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NÄCHSTER</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Facebook">
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Twitter">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Google Plus">
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 JeanShaw. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/2018/08/27/hello-world/" data-tooltip="JeanShaw的博客介绍" aria-label="FRÜHER: JeanShaw的博客介绍">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">FRÜHER</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NÄCHSTER</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Facebook">
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Twitter">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Google Plus">
+                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-times"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/">
+                    <i class="fab fa-facebook" aria-hidden="true"></i><span>Teilen auf Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/">
+                    <i class="fab fa-twitter" aria-hidden="true"></i><span>Teilen auf Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/">
+                    <i class="fab fa-google-plus" aria-hidden="true"></i><span>Teilen auf Google Plus</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+
+
+<div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-times"></i>
+        </div>
+        
+            <h4 id="about-card-name">JeanShaw</h4>
+        
+            <div id="about-card-bio"><p>author.bio</p>
+</div>
+        
+        
+            <div id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>author.job</p>
+
+            </div>
+        
+        
+    </div>
+</div>
+
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/jquery.js"></script>
+<script src="/assets/js/jquery.fancybox.js"></script>
+<script src="/assets/js/thumbs.js"></script>
+<script src="/assets/js/tranquilpeak.js"></script>
+<!--SCRIPTS END-->
+
+    
+
+
+
+    </body>
+</html>
