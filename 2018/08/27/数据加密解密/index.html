@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="">
     
 <head>
     <meta charset="UTF-8">
@@ -11,6 +11,8 @@
     
     
     
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
     <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"JeanShaw","sameAs":["https://github.com/","https://www.linkedin.com/profile/","mailto"],"image":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82"},"articleBody":"数据加密解密\n在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。\n核心代码内容代码块语法遵循标准markdown代码，例如：123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160161162163164165166167168169170171172173174175176177178179using UnityEngine;using System.Collections;using System.Text;using System;public class EncryptAndDecipher&#123;    /** 加密的方式     * encrypt     * @param userId     * @param msg 明文     * @return     */    public static string encrypt(string key,string msg)    &#123;        if(string.IsNullOrEmpty(key) || string.IsNullOrEmpty(msg))        &#123;            return msg;        &#125;        try        &#123;            byte[] keyBytes=Encoding.UTF8.GetBytes(key);            byte[] msgBytes=Encoding.UTF8.GetBytes(msg);            byte[] ciperBytes=new byte[msgBytes.Length];            for(int i=0;i&lt;msgBytes.Length;i++)            &#123;                byte temp=keyBytes[i%keyBytes.Length];                if(i%2==0)                &#123;                    ciperBytes[i]=(byte)(msgBytes[i]+temp);                &#125;                else                &#123;                    ciperBytes[i]=(byte)(msgBytes[i]-temp);                &#125;            &#125;            return byte2hex(ciperBytes);        &#125;        catch (Exception e)        &#123;            Debug.LogError(e);        &#125;        return null;    &#125;    /**     * 解密的方式     * @param userId     * @param decipherMsg 密文     * @return     */    public static string decipher(string key,string decipherMsg)    &#123;        if(key==null || \"\".Equals(key) || decipherMsg==null)        &#123;            return decipherMsg;        &#125;        try        &#123;            byte[] keyBytes=Encoding.UTF8.GetBytes(key);            byte[] decipherBytes=hex2byte(decipherMsg);            byte[] msgBytes=new byte[decipherBytes.Length];            for(int i=0;i&lt;decipherBytes.Length;i++)            &#123;                byte temp=keyBytes[i%keyBytes.Length];                if(i%2==0)                &#123;                    msgBytes[i]=(byte)(decipherBytes[i]-temp);                &#125;                else                &#123;                    msgBytes[i]=(byte)(decipherBytes[i]+temp);                &#125;            &#125;            return Encoding.UTF8.GetString(msgBytes);        &#125;        catch (Exception e)        &#123;            Debug.Log(e);        &#125;        return null;    &#125;    /**     * 将二进制字节数组转化为十六进制字符串     * @param b 二进制字节数组     * @return String     */    private static string byte2hex(byte[] b)     &#123;        string result=\"\";        for (int i=0;i&lt;b.Length;i++)         &#123;            string temp=(b[i]&amp;0xff).ToString(\"X\");            if(temp.Length==1)             &#123;                temp=\"0\"+temp;            &#125;             result=result+temp;        &#125;        return result;    &#125;    /**     * 十六进制字符串转化为二进制字节数组     * @param hex     * @return     */    private static byte[] hex2byte(string hex)    &#123;        byte[] result=new byte[hex.Length/2];        for (int i=0;i&lt;result.Length;i++)         &#123;            string temp=hex[i*2]+\"\"+hex[i*2+1];            result[i]=(byte)StringUtil.getIntFromHexStr(temp);        &#125;        return result;    &#125;    /**     * encrypt方式2     * @param userId     * @param msg 明文     * @return     */    public static string encrypt2(string key,string msg)    &#123;        if(key==null || \"\".Equals(key) || msg==null)        &#123;            return msg;        &#125;        if(key==null)        &#123;            key=\"\";        &#125;        string ciper=\"\";        for(int i=0;i&lt;msg.Length;i++)        &#123;            char temp=key[i%key.Length];            if(i%2==0)            &#123;                ciper+=(char)(msg[i]+temp);            &#125;            else            &#123;                ciper+=(char)(msg[i]-temp);            &#125;        &#125;        return ciper;    &#125;    /**     * 解密方式2     * @param userId     * @param decipherMsg 密文     * @return     */    public static string decipher2(string key,string ciper)    &#123;        if(key==null || \"\".Equals(key) || ciper==null)        &#123;            return ciper;        &#125;        string msg=\"\";        for(int i=0;i&lt;ciper.Length;i++)        &#123;            char temp=key[i%key.Length];            if(i%2==0)            &#123;                msg+=(char)(ciper[i]-temp);            &#125;            else            &#123;                msg+=(char)(ciper[i]+temp);            &#125;        &#125;        return msg;    &#125;&#125;\n从代码中可以明显看到，方式1与方式2的区别就是方式1是以标准uniocde字符方式生成，至于采取哪种方式，由具体的使用方式来决定。欢迎大家访问我的CSDN此文章链接加密解密\n","dateCreated":"2018-08-27T10:09:46+08:00","dateModified":"2018-08-27T12:18:36+08:00","datePublished":"2018-08-27T10:09:46+08:00","description":"","headline":"数据加密解密","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"http://yoursite.com/2018/08/27/数据加密解密/"},"publisher":{"@type":"Organization","name":"JeanShaw","sameAs":["https://github.com/","https://www.linkedin.com/profile/","mailto"],"image":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82","logo":{"@type":"ImageObject","url":"https://www.gravatar.com/avatar/02486a64230ed2e8c91d8f2a0fb81a82"}},"url":"http://yoursite.com/2018/08/27/数据加密解密/"}</script>
     <meta name="description" content="数据加密解密 在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。 核心代码内容代码块语法遵循标准markdown代码，例如：12345678910111213141516171819202122232425262728293031323334353637383940414243444546">
 <meta property="og:type" content="blog">
@@ -18,7 +20,7 @@
 <meta property="og:url" content="http://yoursite.com/2018/08/27/数据加密解密/index.html">
 <meta property="og:site_name" content="JeanShaw&#39;s blog">
 <meta property="og:description" content="数据加密解密 在向服务器请求的过程中，通过密钥进行数据传输是很常见的方式，那么生成密钥和解密的过程是怎样的呢，以下代码来自商业游戏源码，坚持学习但不商用的原则，解读一下源码。 核心代码内容代码块语法遵循标准markdown代码，例如：12345678910111213141516171819202122232425262728293031323334353637383940414243444546">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-08-27T04:18:36.685Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据加密解密">
@@ -196,7 +198,7 @@
         <div class="post-meta">
     <time datetime="2018-08-27T10:09:46+08:00">
 	
-		    27 8月 2018
+		    27 Aug 2018
     	
     </time>
     
@@ -252,24 +254,24 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Facebook">
-                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://service.weibo.com/share/share.php?&amp;title=http://yoursite.com/2018/08/27/数据加密解密/" title="Share on Weibo">
+                    <i class="fab fa-weibo" aria-hidden="true"></i>
                 </a>
             </li>
         
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Twitter">
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2018/08/27/数据加密解密/&amp;title=数据加密解密" title="Share on QQ">
+                    <i class="fab fa-qq" aria-hidden="true"></i>
                 </a>
             </li>
         
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Google Plus">
-                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Share on Qzone">
+                    <i class="fa fa-star" aria-hidden="true"></i>
                 </a>
             </li>
         
@@ -337,24 +339,24 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Facebook">
-                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://service.weibo.com/share/share.php?&amp;title=http://yoursite.com/2018/08/27/数据加密解密/" title="Share on Weibo">
+                    <i class="fab fa-weibo" aria-hidden="true"></i>
                 </a>
             </li>
         
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Twitter">
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2018/08/27/数据加密解密/&amp;title=数据加密解密" title="Share on QQ">
+                    <i class="fab fa-qq" aria-hidden="true"></i>
                 </a>
             </li>
         
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Teilen auf Google Plus">
-                    <i class="fab fa-google-plus" aria-hidden="true"></i>
+                <a class="post-action-btn btn btn--default" target="new" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2018/08/27/数据加密解密/" title="Share on Qzone">
+                    <i class="fa fa-star" aria-hidden="true"></i>
                 </a>
             </li>
         
@@ -380,24 +382,24 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/2018/08/27/数据加密解密/">
-                    <i class="fab fa-facebook" aria-hidden="true"></i><span>Teilen auf Facebook</span>
+                <a class="share-option-btn" target="new" href="http://service.weibo.com/share/share.php?&amp;title=http://yoursite.com/2018/08/27/数据加密解密/">
+                    <i class="fab fa-weibo" aria-hidden="true"></i><span>Share on Weibo</span>
                 </a>
             </li>
         
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/2018/08/27/数据加密解密/">
-                    <i class="fab fa-twitter" aria-hidden="true"></i><span>Teilen auf Twitter</span>
+                <a class="share-option-btn" target="new" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2018/08/27/数据加密解密/&amp;title=数据加密解密">
+                    <i class="fab fa-qq" aria-hidden="true"></i><span>Share on QQ</span>
                 </a>
             </li>
         
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=http://yoursite.com/2018/08/27/数据加密解密/">
-                    <i class="fab fa-google-plus" aria-hidden="true"></i><span>Teilen auf Google Plus</span>
+                <a class="share-option-btn" target="new" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2018/08/27/数据加密解密/">
+                    <i class="fa fa-star" aria-hidden="true"></i><span>Share on Qzone</span>
                 </a>
             </li>
         
@@ -434,7 +436,7 @@
 
         
         
-<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+<div id="cover" style="background-image:url('/assets/images/test.jpg');"></div>
         <!--SCRIPTS-->
 <script src="/assets/js/jquery.js"></script>
 <script src="/assets/js/jquery.fancybox.js"></script>
